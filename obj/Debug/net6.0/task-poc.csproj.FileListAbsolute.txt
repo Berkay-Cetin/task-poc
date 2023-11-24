@@ -1,0 +1,15 @@
+/home/local/workspace/temp/task-poc/bin/Debug/net6.0/task-poc
+/home/local/workspace/temp/task-poc/bin/Debug/net6.0/task-poc.deps.json
+/home/local/workspace/temp/task-poc/bin/Debug/net6.0/task-poc.runtimeconfig.json
+/home/local/workspace/temp/task-poc/bin/Debug/net6.0/task-poc.dll
+/home/local/workspace/temp/task-poc/bin/Debug/net6.0/ref/task-poc.dll
+/home/local/workspace/temp/task-poc/bin/Debug/net6.0/task-poc.pdb
+/home/local/workspace/temp/task-poc/obj/Debug/net6.0/task-poc.csproj.AssemblyReference.cache
+/home/local/workspace/temp/task-poc/obj/Debug/net6.0/task-poc.GeneratedMSBuildEditorConfig.editorconfig
+/home/local/workspace/temp/task-poc/obj/Debug/net6.0/task-poc.AssemblyInfoInputs.cache
+/home/local/workspace/temp/task-poc/obj/Debug/net6.0/task-poc.AssemblyInfo.cs
+/home/local/workspace/temp/task-poc/obj/Debug/net6.0/task-poc.csproj.CoreCompileInputs.cache
+/home/local/workspace/temp/task-poc/obj/Debug/net6.0/task-poc.dll
+/home/local/workspace/temp/task-poc/obj/Debug/net6.0/ref/task-poc.dll
+/home/local/workspace/temp/task-poc/obj/Debug/net6.0/task-poc.pdb
+/home/local/workspace/temp/task-poc/obj/Debug/net6.0/task-poc.genruntimeconfig.cache
