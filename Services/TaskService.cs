@@ -49,6 +49,8 @@ public class TaskService
                 //     taskTemplate.LastFailedExecutedAt = DateTime.Now;
 
                 taskTemplate.LastEntryStatus = TaskEntryStatus.Running;
+                taskTemplate.LastSuccessExecutedAt = taskTemplate.NextSuccessExecutionAt;
+                taskTemplate.NextSuccessExecutionAt = taskTemplate.LastSuccessExecutedAt.AddSeconds(taskTemplate.PeriodAsSeconds);
                 await _taskData.UpdateTaskTemplate(taskTemplate);
 
                 IExecutableTasks iExecutable;
@@ -117,8 +119,6 @@ public class TaskService
         taskTemplate.LastEntryStatus = TaskEntryStatus.Successed;
         taskTemplate.NextFailedExecutionAt = null;
         taskTemplate.TryingCount = 0;
-        taskTemplate.LastSuccessExecutedAt = taskTemplate.NextSuccessExecutionAt;
-        taskTemplate.NextSuccessExecutionAt = taskTemplate.LastSuccessExecutedAt.AddSeconds(taskTemplate.PeriodAsSeconds);
         await _taskData.UpdateTaskTemplate(taskTemplate);
 
         taskEntry.ExecuteEndAt = DateTime.Now;
@@ -162,11 +162,9 @@ public class TaskService
             taskTemplate.LastFailedExecutedAt = DateTime.Now;
             taskTemplate.NextFailedExecutionAt = null;
             taskTemplate.TryingCount = 0;
-            taskTemplate.NextSuccessExecutionAt = taskTemplate.LastSuccessExecutedAt.AddSeconds(taskTemplate.PeriodAsSeconds);
             await _taskData.UpdateTaskTemplate(taskTemplate);
 
             PrintTaskStatus(taskTemplate, "Failed-Max Trying Excedded");
-
         }
         else
         {
@@ -175,7 +173,6 @@ public class TaskService
             taskTemplate.LastEntryStatus = taskEntryStatus;
             taskTemplate.LastFailedExecutedAt = DateTime.Now;
             taskTemplate.NextFailedExecutionAt = DateTime.Now.AddSeconds(taskTemplate.PeriodAsSecondsWhenFailed);
-            taskTemplate.NextSuccessExecutionAt = taskTemplate.LastSuccessExecutedAt.AddSeconds(taskTemplate.PeriodAsSeconds);
             taskTemplate.TryingCount += 1;
             await _taskData.UpdateTaskTemplate(taskTemplate);
 
