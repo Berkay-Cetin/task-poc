@@ -15,11 +15,15 @@ public class HttpCheckTask : IExecutableTasks
 
         await Task.Delay(5000);
 
-        if (count == 2)
-            throw new Exception("Failed Test...");
-        System.Console.WriteLine(DateTime.Now.ToLongTimeString());
-        System.Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        // if (count % 3 == 0) // Mod alinarak yapilacak
+        //     throw new Exception("Failed Test...");
 
-        return null;
+        // if (count < 1)
+        throw new Exception("Failed Test...");
+
+        // System.Console.WriteLine(DateTime.Now.ToLongTimeString());
+        // System.Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+        // return null;
     }
 }

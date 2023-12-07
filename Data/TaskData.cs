@@ -36,11 +36,19 @@ public class TaskData
     private static List<TaskEntry> _entries = new List<TaskEntry>() { };
 
 
-    public async Task<List<Guid>> GetExecutableTaskTemplates(DateTime dateTime)
+    public async Task<List<Guid>> GetExecutableSuccessTaskTemplates(DateTime dateTime)
     {
-        return await Task.FromResult(_tasks.Where(t => (t.NextSuccessExecutionAt <= dateTime ||
-                        (t.NextFailedExecutionAt != null && t.NextFailedExecutionAt <= dateTime)) &&
+        return await Task.FromResult(_tasks.Where(t => (t.NextSuccessExecutionAt <= dateTime) &&
                         t.LastEntryStatus != TaskEntryStatus.Running).Select(t => t.Id).ToList());
+    }
+
+    public async Task<List<Guid>> GetExecutableFailedTaskTemplates(DateTime dateTime)
+    {
+        return await Task.FromResult(_tasks.Where(t => t.NextFailedExecutionAt != null &&
+                                                        t.NextFailedExecutionAt <= dateTime &&
+                                                        t.LastEntryStatus != TaskEntryStatus.Running)
+                                                        .Select(t => t.Id)
+                                                        .ToList());
     }
 
     public async Task<TaskTemplate> GetTemplateById(Guid taskTemplateId)

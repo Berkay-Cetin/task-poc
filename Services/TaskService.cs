@@ -17,60 +17,73 @@ public class TaskService
     {
         while (true)
         {
-            var taskTemplateIds = await _taskData.GetExecutableTaskTemplates(DateTime.Now);
-            System.Console.WriteLine($"Total Task Count: {taskTemplateIds.Count}");
+            var successTaskTemplateIds = await _taskData.GetExecutableSuccessTaskTemplates(DateTime.Now);
+            await RunTasks(successTaskTemplateIds, TaskEntryStatus.Successed);
 
-            foreach (var taskTemplateId in taskTemplateIds)
-            {
-                var taskTemplate = await _taskData.GetTemplateById(taskTemplateId);
+            var failedTaskTemplateIds = await _taskData.GetExecutableFailedTaskTemplates(DateTime.Now);
+            await RunTasks(failedTaskTemplateIds, TaskEntryStatus.Failed);
 
-                if (taskTemplate.LastEntryStatus == TaskEntryStatus.Running)
-                {
-                    System.Console.WriteLine($"Skipping Task Template: {taskTemplate.Name}");
-                    continue;
-                }
-
-                System.Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
-                System.Console.WriteLine($"Starting Task Template Name: {taskTemplate.Name}");
-
-                var taskEntry = new TaskEntry()
-                {
-                    Id = Guid.NewGuid(),
-                    TaskEntryStatus = TaskEntryStatus.Running,
-                    TaskTemplateId = taskTemplate.Id,
-                    TaskTemplate = taskTemplate,
-                    ExecuteStartAt = DateTime.Now,
-                };
-                await _taskData.AddTaskEntry(taskEntry);
-
-                // if (taskTemplate.LastEntryStatus == TaskEntryStatus.Successed)
-                //     taskTemplate.LastSuccessExecutedAt = DateTime.Now;
-                // else
-                //     taskTemplate.LastFailedExecutedAt = DateTime.Now;
-
-                taskTemplate.LastEntryStatus = TaskEntryStatus.Running;
-                taskTemplate.LastSuccessExecutedAt = taskTemplate.NextSuccessExecutionAt;
-                taskTemplate.NextSuccessExecutionAt = taskTemplate.LastSuccessExecutedAt.AddSeconds(taskTemplate.PeriodAsSeconds);
-                await _taskData.UpdateTaskTemplate(taskTemplate);
-
-                IExecutableTasks iExecutable;
-
-                switch (taskTemplate.TaskType)
-                {
-                    case TaskTypes.HttpCheck:
-                        iExecutable = new HttpCheckTask();
-                        break;
-                    case TaskTypes.DnsResolver:
-                        iExecutable = new DnsResolverTask();
-                        break;
-
-                    default:
-                        throw new Exception("Task Template Type Unkown");
-                }
-                _ = Task.Run(async () => await RunTaskEntry(taskTemplate, taskEntry, iExecutable));
-            }
+            System.Console.WriteLine($"Total Task Count: {successTaskTemplateIds.Count}");
 
             await Task.Delay(1000);
+        }
+    }
+
+    private async Task RunTasks(List<Guid> taskTemplateIds, TaskEntryStatus previousRunStatus)
+    {
+        foreach (var taskTemplateId in taskTemplateIds)
+        {
+            var taskTemplate = await _taskData.GetTemplateById(taskTemplateId);
+
+            if (taskTemplate.LastEntryStatus == TaskEntryStatus.Running)
+            {
+                System.Console.WriteLine($"Skipping Task Template: {taskTemplate.Name}");
+                continue;
+            }
+
+            System.Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
+            System.Console.WriteLine($"{previousRunStatus} Starting Task Template Name: {taskTemplate.Name}");
+
+            var taskEntry = new TaskEntry()
+            {
+                Id = Guid.NewGuid(),
+                TaskEntryStatus = TaskEntryStatus.Running,
+                TaskTemplateId = taskTemplate.Id,
+                TaskTemplate = taskTemplate,
+                ExecuteStartAt = DateTime.Now,
+            };
+            await _taskData.AddTaskEntry(taskEntry);
+
+            // if (taskTemplate.LastEntryStatus == TaskEntryStatus.Successed)
+            //     taskTemplate.LastSuccessExecutedAt = DateTime.Now;
+            // else
+            //     taskTemplate.LastFailedExecutedAt = DateTime.Now;
+
+            taskTemplate.LastEntryStatus = TaskEntryStatus.Running;
+            // Hangi asama icin calistigimizi bilmemiz gerekiyor. Ona gore set edilecek
+            if (previousRunStatus == TaskEntryStatus.Successed)
+            {
+                taskTemplate.LastSuccessExecutedAt = taskTemplate.NextSuccessExecutionAt;
+                taskTemplate.NextSuccessExecutionAt = taskTemplate.LastSuccessExecutedAt.AddSeconds(taskTemplate.PeriodAsSeconds);
+            }
+
+            await _taskData.UpdateTaskTemplate(taskTemplate);
+
+            IExecutableTasks iExecutable;
+
+            switch (taskTemplate.TaskType)
+            {
+                case TaskTypes.HttpCheck:
+                    iExecutable = new HttpCheckTask();
+                    break;
+                case TaskTypes.DnsResolver:
+                    iExecutable = new DnsResolverTask();
+                    break;
+
+                default:
+                    throw new Exception("Task Template Type Unkown");
+            }
+            _ = Task.Run(async () => await RunTaskEntry(taskTemplate, taskEntry, iExecutable));
         }
     }
 
@@ -173,6 +186,7 @@ public class TaskService
             taskTemplate.LastEntryStatus = taskEntryStatus;
             taskTemplate.LastFailedExecutedAt = DateTime.Now;
             taskTemplate.NextFailedExecutionAt = DateTime.Now.AddSeconds(taskTemplate.PeriodAsSecondsWhenFailed);
+            // TODO: Buraya successNext'in onune gecmesi engellenmeli
             taskTemplate.TryingCount += 1;
             await _taskData.UpdateTaskTemplate(taskTemplate);
 
