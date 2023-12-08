@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TKWM89vO4bQRNoqQzeN9sLP1j2HL6H9YYUCZo+Ce3CUM+E27xeInK3JbW22sdNnPF8zGaFIFzHYPnwqo+MdzeA==",
+  "dgSpecHash": "uckLBg8jroK3ioWQiiaDOSgnXXCBIOWBRpex4j0tABJcW8521vagrE6d1sC/2PNWOEDV1rz4ThV/Xtb2LytL3g==",
   "success": true,
-  "projectFilePath": "/home/local/workspace/temp/task-poc/task-poc.csproj",
+  "projectFilePath": "C:\\Users\\berkay.cetin\\source\\repos\\taskPocFork\\task-poc\\task-poc.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

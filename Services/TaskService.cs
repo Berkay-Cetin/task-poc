@@ -185,12 +185,24 @@ public class TaskService
 
             taskTemplate.LastEntryStatus = taskEntryStatus;
             taskTemplate.LastFailedExecutedAt = DateTime.Now;
-            taskTemplate.NextFailedExecutionAt = DateTime.Now.AddSeconds(taskTemplate.PeriodAsSecondsWhenFailed);
-            // TODO: Buraya successNext'in onune gecmesi engellenmeli
-            taskTemplate.TryingCount += 1;
-            await _taskData.UpdateTaskTemplate(taskTemplate);
+            var tempNextFail = DateTime.Now.AddSeconds(taskTemplate.PeriodAsSecondsWhenFailed);
 
-            PrintTaskStatus(taskTemplate, "Failed-Normal");
+            if (taskTemplate.NextSuccessExecutionAt < tempNextFail)
+            {
+                taskTemplate.NextFailedExecutionAt = null;
+                taskTemplate.TryingCount = 0;
+                await _taskData.UpdateTaskTemplate(taskTemplate);
+
+                PrintTaskStatus(taskTemplate, "Failed-NextSuccess Time Going To Be Passed");
+            }
+            else
+            {
+                taskTemplate.NextFailedExecutionAt = tempNextFail;
+                taskTemplate.TryingCount += 1;
+                await _taskData.UpdateTaskTemplate(taskTemplate);
+
+                PrintTaskStatus(taskTemplate, "Failed-Normal");
+            }
         }
     }
 }
